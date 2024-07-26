@@ -10,7 +10,7 @@
   "Config.LockItemSigns.Tooltip": "If enabled, item display signs will not allow the display item to be overridden without the lock/unlock keybind. If the sign is blank, you can set it normally.",
   "Config.LockTextSigns.Name": "Lock Text Signs",
   "Config.LockTextSigns.Tooltip": "If enabled, text signs will not display the edit dialog without the lock/unlock keybind. If the sign is blank, you can set it normally.",
-  "Config.LockCrabPots.Name": "Lock Crap Pots",
+  "Config.LockCrabPots.Name": "Lock Crab Pots",
   "Config.LockCrabPots.Tooltip": "If enabled, you will be unable to pickup crab pots without using the lock/unlock keybind.",
   "Config.LockFloors.Name": "Lock Floors",
   "Config.LockFloors.Tooltip": "If enabled, you will be unable to break floors without using the lock/unlock keybind.",

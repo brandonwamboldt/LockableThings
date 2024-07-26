@@ -4,6 +4,7 @@ using StardewModdingAPI.Events;
 using StardewValley;
 using StardewValley.Objects;
 using StardewValley.TerrainFeatures;
+using StardewValley.Tools;
 
 namespace LockableThings
 {
@@ -159,15 +160,25 @@ namespace LockableThings
             }
 
             justCheckingForActivity = true;
-            Game1.showRedMessage(Helper.Translation.Get("Error.Locked"));
+            showError(Helper.Translation.Get("Error.Locked"));
         }
 
         public static void CrabPot_checkForAction_Prefix(CrabPot __instance, Farmer who, bool justCheckingForActivity, ref int ___ignoreRemovalTimer)
         {
             if (IsUnlocked(Config.LockCrabPots)) return;
 
-            ___ignoreRemovalTimer = 200;
-            Game1.showRedMessage(Helper.Translation.Get("Error.Locked"));
+            var item = __instance.heldObject.Value;
+
+            if (item != null || __instance.bait.Value != null)
+            {
+                return;
+            }
+
+            if (Game1.didPlayerJustClickAtAll(ignoreNonMouseHeldInput: true))
+            {
+                ___ignoreRemovalTimer = 200;
+                showError(Helper.Translation.Get("Error.Locked"));
+            }
         }
 
         public static void Sign_checkForAction_Prefix(Sign __instance, Farmer who, ref bool justCheckingForActivity)
@@ -178,15 +189,20 @@ namespace LockableThings
             if (__instance.displayItem.Value == null) return;
 
             justCheckingForActivity = true;
-            Game1.showRedMessage(Helper.Translation.Get("Error.Locked"));
+            showError(Helper.Translation.Get("Error.Locked"));
         }
 
-        public static bool Flooring_performToolAction_Prefix(Flooring __instance, Tool t)
+        public static bool Flooring_performToolAction_Prefix(Flooring __instance, Tool t, int damage)
         {
             if (IsUnlocked(Config.LockFloors)) return true;
 
-            Game1.showRedMessage(Helper.Translation.Get("Error.Locked"));
-            return false;
+            if ((t != null || damage > 0) && (damage > 0 || t is Pickaxe || t is Axe))
+            {
+                showError(Helper.Translation.Get("Error.Locked"));
+                return false;
+            }
+
+            return true;
         }
 
         public static bool Furniture_clicked_Prefix(Furniture __instance, Farmer who)
@@ -198,7 +214,7 @@ namespace LockableThings
 
             if (__instance.heldObject.Value != null && !IsUnlocked(Config.LockDecorations))
             {
-                Game1.showRedMessage(Helper.Translation.Get("Error.Locked"));
+                showError(Helper.Translation.Get("Error.Locked"));
                 return false;
             }
 
@@ -212,13 +228,33 @@ namespace LockableThings
                 return;
             }
 
-            Game1.showRedMessage(Helper.Translation.Get("Error.Locked"));
+            showError(Helper.Translation.Get("Error.Locked"));
             __result = false;
         }
 
         private static bool IsUnlocked(bool config)
         {
             return (!config || ToggleUnlocked || (Helper.Input.IsDown(Config.UnlockKeybind) && !Config.ToggleLock));
+        }
+
+        private static void showError(string message)
+        {
+            if (Game1.doesHUDMessageExist(message))
+            {
+                for (int i = 0; i < Game1.hudMessages.Count; i++)
+                {
+                    if (message.Equals(Game1.hudMessages[i].message))
+                    {
+                        Game1.hudMessages[i].timeLeft = 1500;
+                    }
+                }
+            } 
+            else
+            {
+                var msg = new HUDMessage(message, 3);
+                msg.timeLeft = 1500;
+                Game1.hudMessages.Add(msg);
+            }
         }
     }
 }
